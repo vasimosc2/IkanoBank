@@ -25,45 +25,6 @@ Built with Python 3.12 + FastAPI. Business logic is isolated from the HTTP layer
         └── ci.yml
 ```
 
----
-
-## Quick start (local)
-
-**Prerequisites:** Python 3.10+
-
-```bash
-# 1. Clone and enter the directory
-git clone <repo-url>
-cd ikano
-
-# 2. Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Start the API
-uvicorn app:app --reload
-```
-
-The API is now running at `http://localhost:8000`.
-Interactive docs (auto-generated): `http://localhost:8000/docs`
-
----
-
-## Running tests
-
-```bash
-pytest -v
-```
-
-Expected output: **29 passed**.
-
-Tests cover normal cases, edge cases, and invalid inputs for each of the three calculations. No HTTP server needs to be running — the tests call the logic functions directly.
-
----
-
 ## Running with Docker
 
 ```bash
@@ -95,23 +56,8 @@ Use this workflow when running the Kubernetes version locally. It gives you a st
 
 ```bash
 # 1. Start Minikube
-minikube start
+bash .scripts/run-k8s-local.sh
 
-# 2. Build the Docker image inside Minikube's Docker daemon
-#    This avoids ImagePullBackOff for local images.
-eval $(minikube docker-env)
-docker build -t ikano-calc:latest .
-
-# 3. Apply the Kubernetes manifests
-kubectl apply -f kubernetes/deployment.yaml
-
-# 4. Wait until all 3 replicas are running
-kubectl rollout status deployment/ikano-calc
-kubectl get pods
-
-# 5. Expose the service locally on a fixed port
-#    Keep this terminal open while using the app.
-kubectl port-forward service/ikano-calc 8000:80
 ```
 
 Now open:
@@ -127,34 +73,6 @@ curl "http://localhost:8000/fibonacci?n=10"
 curl "http://localhost:8000/factorial?n=5"
 curl -X POST "http://localhost:8000/loan"   -H "Content-Type: application/json"   -d '{"principal": 10000, "annual_rate": 5, "months": 12}'
 ```
-
-Expected Fibonacci response:
-
-```json
-{"n": 10, "result": 55}
-```
-
-### One-command local helper
-
-The same Minikube workflow is also available as a helper script:
-
-```bash
-./scripts/run-k8s-local.sh
-```
-
-The script starts Minikube, builds the image inside Minikube, applies the manifests, waits for the deployment, and opens the fixed local port-forward at `http://localhost:8000`.
-
-### Why not use `minikube service` by default?
-
-`minikube service ikano-calc --url` also works, but with a `ClusterIP` service it creates a temporary proxy and usually gives a random localhost port, for example `http://127.0.0.1:44517`. That is useful for quick testing, but `kubectl port-forward service/ikano-calc 8000:80` is clearer for documentation because the URL is always `http://localhost:8000`.
-
-### Kubernetes assumptions
-
-Kubernetes only makes sense when the service receives enough concurrent traffic to justify the orchestration overhead. Kubernetes adds operational complexity: manifests, cluster management, scheduling, networking, image publishing, monitoring, and resource overhead per replica. For local use or low traffic, Docker or a single process is simpler.
-
-The deployment assumes that requests are split across more than one Kubernetes node. With multiple nodes, replicas can be scheduled on different machines and the load can be distributed across them. If all replicas run on a single small node, Kubernetes still improves availability at the process level, but it will not increase the machine's total CPU capacity.
-
----
 
 ## Automated validation with GitHub Actions
 
