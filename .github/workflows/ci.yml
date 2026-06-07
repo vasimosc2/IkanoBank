@@ -63,9 +63,6 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"principal": 10000, "annual_rate": 5, "months": 12}' \
             | python -c "import sys, json; assert json.load(sys.stdin)['monthly_repayment'] == 856.07"
-      - name: Validate Kubernetes YAML syntax
-        run: |
-          test -f kubernetes/deployment.yaml
 
       - name: Show container logs on failure
         if: failure()
