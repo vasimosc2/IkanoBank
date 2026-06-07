@@ -39,41 +39,6 @@ The API is then available at `http://localhost:8000`.
 
 ---
 
-## Kubernetes deployment
-
-A minimal Kubernetes manifest is included in `kubernetes/deployment.yaml`. It creates:
-
-- a `Deployment` with 3 replicas
-- a `ClusterIP` service that load-balances traffic to the pods inside the cluster
-- basic CPU/memory requests and limits
-- liveness and readiness probes
-
-A Deployment alone is not enough to access the app from your machine. The Deployment keeps the pods running; the Service gives those pods a stable internal endpoint; and for local development, `kubectl port-forward` maps that Service to a fixed localhost URL.
-
-### Default local Minikube workflow
-
-Use this workflow when running the Kubernetes version locally. It gives you a stable URL: `http://localhost:8000`.
-
-```bash
-# 1. Start Minikube
-bash .scripts/run-k8s-local.sh
-
-```
-
-Now open:
-
-```text
-http://localhost:8000/docs
-```
-
-or test from another terminal:
-
-```bash
-curl "http://localhost:8000/fibonacci?n=10"
-curl "http://localhost:8000/factorial?n=5"
-curl -X POST "http://localhost:8000/loan"   -H "Content-Type: application/json"   -d '{"principal": 10000, "annual_rate": 5, "months": 12}'
-```
-
 ## Automated validation with GitHub Actions
 
 The repository includes `.github/workflows/ci.yml`. GitHub Actions runs automatically on:
